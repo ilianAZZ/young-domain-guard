@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "npm run clean && tsc && cp manifest.json popup.html dist/ && cp -r icons dist/icons && cp -r _locales dist/_locales",
+    "clean": "rm -rf build/js",
+    "build": "npm run clean && tsc",
     "dev": "tsc --watch"
   },
   "repository": {
