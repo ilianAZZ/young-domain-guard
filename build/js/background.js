@@ -178,40 +178,43 @@ function updateBadge(tabId, result) {
         });
     }
 }
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status !== "complete" || !tab.url)
-        return;
-    let url;
-    try {
-        url = new URL(tab.url);
-    }
-    catch {
-        return;
-    }
-    if (!["http:", "https:"].includes(url.protocol))
-        return;
-    const domain = extractRootDomain(url.hostname);
-    if (isSkippableDomain(domain)) {
-        updateBadge(tabId, { status: "safe" });
-        return;
-    }
-    chrome.action.setBadgeText({ text: "\u2026", tabId });
-    chrome.action.setBadgeBackgroundColor({ color: "#94A3B8", tabId });
-    const result = await checkDomain(domain);
-    updateBadge(tabId, result);
-    if (result.status === "danger") {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.type === "CHECK_DOMAIN") {
+        const url = msg.url;
+        const tabId = sender.tab?.id;
+        let parsedUrl;
         try {
-            await chrome.tabs.sendMessage(tabId, {
-                type: "DOMAIN_GUARD_ALERT",
-                data: result,
-            });
+            parsedUrl = new URL(url);
         }
         catch {
-            // Content script may not be ready yet
+            sendResponse({ status: "unknown" });
+            return true;
         }
+        if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+            sendResponse({ status: "unknown" });
+            return true;
+        }
+        const domain = extractRootDomain(parsedUrl.hostname);
+        if (isSkippableDomain(domain)) {
+            if (tabId)
+                updateBadge(tabId, { status: "safe" });
+            sendResponse({ status: "safe" });
+            return true;
+        }
+        if (tabId) {
+            chrome.action.setBadgeText({ text: "\u2026", tabId });
+            chrome.action.setBadgeBackgroundColor({ color: "#94A3B8", tabId });
+        }
+        checkDomain(domain).then((result) => {
+            if (tabId)
+                updateBadge(tabId, result);
+            sendResponse({
+                status: result.status,
+                data: result.status === "danger" ? result : undefined,
+            });
+        });
+        return true;
     }
-});
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg.type === "GET_DOMAIN_INFO") {
         const domain = msg.domain;
         if (!domain) {

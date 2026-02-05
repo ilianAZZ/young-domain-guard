@@ -209,6 +209,18 @@ interface AlertData {
     insert();
   }
 
+  // Proactively check current domain on page load
+  chrome.runtime.sendMessage(
+    { type: "CHECK_DOMAIN", url: window.location.href },
+    (result) => {
+      if (chrome.runtime.lastError) return;
+      if (result && result.status === "danger" && result.data) {
+        injectBanner(result.data as AlertData);
+      }
+    }
+  );
+
+  // Fallback listener for background-initiated alerts
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "DOMAIN_GUARD_ALERT" && msg.data) {
       injectBanner(msg.data as AlertData);
