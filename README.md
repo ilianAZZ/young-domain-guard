@@ -32,18 +32,20 @@ Results are cached for 4 hours to avoid repeated lookups. Major well-known domai
 
 1. Clone the repository
 2. Install dependencies and build:
-   ```
+
+   ```bash
    npm install
    npm run build
    ```
+
 3. Load the extension in your browser:
    - **Chrome/Brave**: Go to `chrome://extensions`, enable "Developer mode", click "Load unpacked", and select the project folder
    - **Firefox**: Go to `about:debugging#/runtime/this-firefox`, click "Load Temporary Add-on", and select `manifest.json`
 
 ## Development
 
-```
-npm run watch
+```bash
+npm run dev
 ```
 
 This runs the TypeScript compiler in watch mode, recompiling on file changes. Reload the extension in your browser after changes.
