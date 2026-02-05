@@ -7,7 +7,8 @@
   "permissions": ["activeTab", "storage"],
   "host_permissions": ["https://rdap.org/*", "https://*.rdap.org/*"],
   "background": {
-    "service_worker": "js/background.js"
+    "service_worker": "js/background.js",
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [
     {
