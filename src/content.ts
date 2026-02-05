@@ -7,6 +7,9 @@ interface AlertData {
 (function () {
   "use strict";
 
+  const i18n = chrome.i18n.getMessage;
+  const dateLocale = chrome.i18n.getUILanguage();
+
   let bannerInjected = false;
 
   function injectBanner(data: AlertData): void {
@@ -28,7 +31,10 @@ interface AlertData {
     const shadow = host.attachShadow({ mode: "closed" });
 
     const ageDays = data.ageDays;
-    const creationDate = new Date(data.creationDate).toLocaleDateString("fr-FR", {
+    const daysText = ageDays === 1
+      ? i18n("dayCount", [String(ageDays)])
+      : i18n("dayCountPlural", [String(ageDays)]);
+    const creationDate = new Date(data.creationDate).toLocaleDateString(dateLocale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -170,19 +176,17 @@ interface AlertData {
 
       <div class="dg-overlay">
         <div class="dg-popup">
-          <div class="dg-warning-icon">\u26a0\ufe0f</div>
-          <div class="dg-title">\ud83d\udee1\ufe0f Domaine r\u00e9cent d\u00e9tect\u00e9 !</div>
+          <div class="dg-warning-icon">⚠️</div>
+          <div class="dg-title">${i18n("bannerTitle")}</div>
           <div class="dg-domain">${data.domain}</div>
           <div class="dg-details">
-            Ce domaine a \u00e9t\u00e9 enregistr\u00e9 il y a seulement
-            <strong>${ageDays} jour${ageDays > 1 ? "s" : ""}</strong>
-            (le ${creationDate}).
+            ${i18n("bannerDetails", [`<strong>${daysText}</strong>`, creationDate])}
           </div>
           <div class="dg-warning-text">
-            Soyez vigilant \u2014 les sites tr\u00e8s r\u00e9cents peuvent \u00eatre frauduleux.<br>
-            V\u00e9rifiez l\u2019authenticit\u00e9 de ce site avant de saisir des informations personnelles.
+            ${i18n("bannerWarning")}<br>
+            ${i18n("bannerVerify")}
           </div>
-          <button class="dg-close" title="Fermer">J'ai compris, continuer</button>
+          <button class="dg-close" title="${i18n("close")}">${i18n("bannerDismiss")}</button>
         </div>
       </div>
     `;

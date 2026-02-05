@@ -1,0 +1,149 @@
+{
+  "extName": {
+    "message": "Young Domain Guard — Recent Domain Detector"
+  },
+  "extDescription": {
+    "message": "Alerts you when visiting a recently registered domain (< 30 days)."
+  },
+  "headerSubtitle": {
+    "message": "Recent domain detection"
+  },
+  "loading": {
+    "message": "Analyzing…"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "alertThreshold": {
+    "message": "Alert threshold"
+  },
+  "days": {
+    "message": "days"
+  },
+  "footerText": {
+    "message": "Data via $LINK$ — free & open",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "noActiveTab": {
+    "message": "No active tab"
+  },
+  "invalidUrl": {
+    "message": "Invalid URL"
+  },
+  "browserInternalPage": {
+    "message": "Browser internal page"
+  },
+  "verificationError": {
+    "message": "Verification error"
+  },
+  "errorPrefix": {
+    "message": "Error: $MESSAGE$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "recentDomainDetected": {
+    "message": "⚠ Recent domain detected"
+  },
+  "domainVerified": {
+    "message": "✓ Domain verified"
+  },
+  "unknownStatus": {
+    "message": "— Unknown"
+  },
+  "cannotVerify": {
+    "message": "Cannot verify this domain"
+  },
+  "age": {
+    "message": "Age"
+  },
+  "registeredOn": {
+    "message": "Registered on"
+  },
+  "unknown": {
+    "message": "Unknown"
+  },
+  "today": {
+    "message": "Today"
+  },
+  "dayCount": {
+    "message": "$COUNT$ day",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "dayCountPlural": {
+    "message": "$COUNT$ days",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "monthCount": {
+    "message": "$COUNT$ month",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "monthCountPlural": {
+    "message": "$COUNT$ months",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "yearCount": {
+    "message": "$COUNT$ year",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "yearCountPlural": {
+    "message": "$COUNT$ years",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "bannerTitle": {
+    "message": "🛡️ Recent domain detected!"
+  },
+  "bannerDetails": {
+    "message": "This domain was registered only $DAYS$ ago (on $DATE$).",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      },
+      "date": {
+        "content": "$2"
+      }
+    }
+  },
+  "bannerWarning": {
+    "message": "Be cautious — very recent websites may be fraudulent."
+  },
+  "bannerVerify": {
+    "message": "Verify the authenticity of this site before entering personal information."
+  },
+  "bannerDismiss": {
+    "message": "I understand, continue"
+  },
+  "close": {
+    "message": "Close"
+  }
+}
