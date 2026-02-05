@@ -19,9 +19,9 @@ interface AlertData {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
-      right: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
       z-index: 2147483647 !important;
-      height: auto !important;
       pointer-events: auto !important;
     `;
 
@@ -36,123 +36,167 @@ interface AlertData {
 
     shadow.innerHTML = `
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;900&display=swap');
 
         :host {
           all: initial;
           font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        .dg-banner {
+        .dg-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(6px);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 12px;
-          padding: 12px 20px;
-          background: linear-gradient(135deg, #1a0005 0%, #450a0a 30%, #7f1d1d 70%, #991b1b 100%);
-          color: #fef2f2;
-          font-size: 14px;
-          line-height: 1.4;
-          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.2);
-          border-bottom: 2px solid #ef4444;
-          animation: dg-slideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+          z-index: 2147483647;
+          animation: dg-fadeIn 0.3s ease;
         }
 
-        @keyframes dg-slideDown {
+        @keyframes dg-fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes dg-scaleIn {
           from {
-            transform: translateY(-100%);
+            transform: scale(0.85);
             opacity: 0;
           }
           to {
-            transform: translateY(0);
+            transform: scale(1);
             opacity: 1;
           }
         }
 
-        .dg-icon {
-          flex-shrink: 0;
-          width: 28px;
-          height: 28px;
-          background: rgba(239, 68, 68, 0.25);
-          border: 1.5px solid rgba(239, 68, 68, 0.5);
+        .dg-popup {
+          background: linear-gradient(160deg, #1a0005 0%, #450a0a 30%, #7f1d1d 70%, #991b1b 100%);
+          border: 2px solid #ef4444;
+          border-radius: 16px;
+          padding: 40px 48px;
+          max-width: 520px;
+          width: 90vw;
+          box-shadow:
+            0 0 60px rgba(239, 68, 68, 0.3),
+            0 0 120px rgba(239, 68, 68, 0.1),
+            0 24px 48px rgba(0, 0, 0, 0.5);
+          text-align: center;
+          color: #fef2f2;
+          animation: dg-scaleIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .dg-warning-icon {
+          width: 72px;
+          height: 72px;
+          margin: 0 auto 20px;
+          background: rgba(239, 68, 68, 0.2);
+          border: 2px solid rgba(239, 68, 68, 0.5);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 36px;
           animation: dg-pulse 2s ease-in-out infinite;
         }
 
         @keyframes dg-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
-          50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+          50% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
         }
 
-        .dg-text strong {
+        .dg-title {
+          font-size: 26px;
+          font-weight: 900;
           color: #fca5a5;
-          font-weight: 700;
+          margin: 0 0 8px;
+          letter-spacing: -0.5px;
         }
 
-        .dg-text .dg-domain {
-          color: #fbbf24;
+        .dg-domain {
+          font-size: 20px;
           font-weight: 700;
+          color: #fbbf24;
           text-decoration: underline;
           text-decoration-style: wavy;
-          text-underline-offset: 3px;
+          text-underline-offset: 4px;
+          word-break: break-all;
+          margin: 12px 0;
+        }
+
+        .dg-details {
+          font-size: 15px;
+          line-height: 1.6;
+          color: #fecaca;
+          margin: 16px 0 24px;
+        }
+
+        .dg-details strong {
+          color: #ffffff;
+          font-weight: 700;
+        }
+
+        .dg-warning-text {
+          font-size: 13px;
+          color: rgba(254, 202, 202, 0.7);
+          line-height: 1.5;
+          margin: 0 0 28px;
         }
 
         .dg-close {
-          flex-shrink: 0;
           background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border: 1px solid rgba(255, 255, 255, 0.2);
           color: #fef2f2;
-          width: 28px;
-          height: 28px;
-          border-radius: 6px;
+          padding: 10px 32px;
+          border-radius: 8px;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
+          font-size: 15px;
+          font-weight: 700;
+          font-family: inherit;
           transition: all 0.2s ease;
-          line-height: 1;
+          letter-spacing: 0.3px;
         }
 
         .dg-close:hover {
           background: rgba(239, 68, 68, 0.4);
           border-color: rgba(239, 68, 68, 0.6);
+          transform: translateY(-1px);
         }
       </style>
 
-      <div class="dg-banner">
-        <div class="dg-icon">\ud83d\udee1\ufe0f</div>
-        <div class="dg-text">
-          <strong>\u26a0 Domaine r\u00e9cent !</strong>
-          <span class="dg-domain">${data.domain}</span>
-          a \u00e9t\u00e9 enregistr\u00e9 il y a <strong>${ageDays} jour${ageDays > 1 ? "s" : ""}</strong>
-          (le ${creationDate}).
-          Soyez vigilant \u2014 les sites tr\u00e8s r\u00e9cents peuvent \u00eatre frauduleux.
+      <div class="dg-overlay">
+        <div class="dg-popup">
+          <div class="dg-warning-icon">\u26a0\ufe0f</div>
+          <div class="dg-title">\ud83d\udee1\ufe0f Domaine r\u00e9cent d\u00e9tect\u00e9 !</div>
+          <div class="dg-domain">${data.domain}</div>
+          <div class="dg-details">
+            Ce domaine a \u00e9t\u00e9 enregistr\u00e9 il y a seulement
+            <strong>${ageDays} jour${ageDays > 1 ? "s" : ""}</strong>
+            (le ${creationDate}).
+          </div>
+          <div class="dg-warning-text">
+            Soyez vigilant \u2014 les sites tr\u00e8s r\u00e9cents peuvent \u00eatre frauduleux.<br>
+            V\u00e9rifiez l\u2019authenticit\u00e9 de ce site avant de saisir des informations personnelles.
+          </div>
+          <button class="dg-close" title="Fermer">J'ai compris, continuer</button>
         </div>
-        <button class="dg-close" title="Fermer">\u2715</button>
       </div>
     `;
 
     shadow.querySelector(".dg-close")!.addEventListener("click", () => {
-      host.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-      host.style.transform = "translateY(-100%)";
-      host.style.opacity = "0";
+      const overlay = shadow.querySelector(".dg-overlay") as HTMLElement;
+      overlay.style.transition = "opacity 0.3s ease";
+      overlay.style.opacity = "0";
       setTimeout(() => host.remove(), 300);
-      document.documentElement.style.marginTop = "";
     });
 
     function insert(): void {
       if (document.body) {
         document.body.prepend(host);
-        const bannerEl = shadow.querySelector(".dg-banner") as HTMLElement | null;
-        if (bannerEl) {
-          const h = bannerEl.offsetHeight;
-          document.documentElement.style.marginTop = h + "px";
-        }
       } else {
         requestAnimationFrame(insert);
       }
