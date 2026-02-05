@@ -1,7 +1,15 @@
+interface DomainResult {
+  domain: string;
+  creationDate: string | null;
+  ageDays: number | null;
+  isRecent: boolean;
+  status: "danger" | "safe" | "unknown";
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
-  const statusCard = document.getElementById("status");
-  const domainEl = document.getElementById("domain-name");
-  const thresholdInput = document.getElementById("threshold");
+  const statusCard = document.getElementById("status")!;
+  const domainEl = document.getElementById("domain-name")!;
+  const thresholdInput = document.getElementById("threshold") as HTMLInputElement;
 
   chrome.runtime.sendMessage({ type: "GET_THRESHOLD" }, (res) => {
     if (res && res.thresholdDays) {
@@ -9,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  let saveTimeout;
+  let saveTimeout: ReturnType<typeof setTimeout>;
   thresholdInput.addEventListener("input", () => {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
@@ -31,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    let url;
+    let url: URL;
     try {
       url = new URL(tab.url);
     } catch {
@@ -53,37 +61,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     chrome.runtime.sendMessage(
       { type: "GET_DOMAIN_INFO", domain },
-      (result) => {
+      (result: DomainResult | undefined) => {
         if (!result) {
-          showUnknown("Erreur de vérification");
+          showUnknown("Erreur de v\u00e9rification");
           return;
         }
         renderResult(result);
       }
     );
-  } catch (err) {
-    showUnknown("Erreur: " + err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    showUnknown("Erreur: " + message);
   }
 
-  function renderResult(result) {
+  function renderResult(result: DomainResult): void {
     statusCard.className = "status-card " + result.status;
 
     if (result.status === "danger") {
-      const created = new Date(result.creationDate).toLocaleDateString(
+      const created = new Date(result.creationDate!).toLocaleDateString(
         "fr-FR",
         { year: "numeric", month: "short", day: "numeric" }
       );
 
       statusCard.innerHTML = `
-        <div class="status-label">⚠ Domaine récent détecté</div>
+        <div class="status-label">\u26a0 Domaine r\u00e9cent d\u00e9tect\u00e9</div>
         <div class="status-domain">${result.domain}</div>
         <div class="status-details">
           <div class="detail-row">
-            <span class="label">Âge</span>
-            <span class="age-badge">🔴 ${result.ageDays} jour${result.ageDays > 1 ? "s" : ""}</span>
+            <span class="label">\u00c2ge</span>
+            <span class="age-badge">\ud83d\udd34 ${result.ageDays} jour${result.ageDays! > 1 ? "s" : ""}</span>
           </div>
           <div class="detail-row">
-            <span class="label">Enregistré le</span>
+            <span class="label">Enregistr\u00e9 le</span>
             <span class="value">${created}</span>
           </div>
         </div>
@@ -96,32 +105,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             month: "short",
             day: "numeric",
           })
-        : "—";
+        : "\u2014";
 
       statusCard.innerHTML = `
-        <div class="status-label">✓ Domaine vérifié</div>
+        <div class="status-label">\u2713 Domaine v\u00e9rifi\u00e9</div>
         <div class="status-domain">${result.domain}</div>
         <div class="status-details">
           <div class="detail-row">
-            <span class="label">Âge</span>
-            <span class="age-badge">🟢 ${ageText}</span>
+            <span class="label">\u00c2ge</span>
+            <span class="age-badge">\ud83d\udfe2 ${ageText}</span>
           </div>
           <div class="detail-row">
-            <span class="label">Enregistré le</span>
+            <span class="label">Enregistr\u00e9 le</span>
             <span class="value">${created}</span>
           </div>
         </div>
       `;
     } else {
-      showUnknown("Impossible de vérifier ce domaine");
+      showUnknown("Impossible de v\u00e9rifier ce domaine");
     }
   }
 
-  function showUnknown(message) {
+  function showUnknown(message: string): void {
     statusCard.className = "status-card unknown";
     statusCard.innerHTML = `
-      <div class="status-label">— Inconnu</div>
-      <div class="status-domain">${domainEl.textContent || "—"}</div>
+      <div class="status-label">\u2014 Inconnu</div>
+      <div class="status-domain">${domainEl.textContent || "\u2014"}</div>
       <div class="status-details">
         <div class="detail-row">
           <span class="label">${message}</span>
@@ -130,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
   }
 
-  function formatAge(days) {
+  function formatAge(days: number | null): string {
     if (days == null) return "Inconnu";
     if (days < 1) return "Aujourd'hui";
     if (days < 30) return `${days} jour${days > 1 ? "s" : ""}`;

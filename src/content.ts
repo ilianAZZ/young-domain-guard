@@ -1,9 +1,15 @@
+interface AlertData {
+  domain: string;
+  creationDate: string;
+  ageDays: number;
+}
+
 (function () {
   "use strict";
 
   let bannerInjected = false;
 
-  function injectBanner(data) {
+  function injectBanner(data: AlertData): void {
     if (bannerInjected) return;
     bannerInjected = true;
 
@@ -119,19 +125,19 @@
       </style>
 
       <div class="dg-banner">
-        <div class="dg-icon">🛡️</div>
+        <div class="dg-icon">\ud83d\udee1\ufe0f</div>
         <div class="dg-text">
-          <strong>⚠ Domaine récent !</strong>
+          <strong>\u26a0 Domaine r\u00e9cent !</strong>
           <span class="dg-domain">${data.domain}</span>
-          a été enregistré il y a <strong>${ageDays} jour${ageDays > 1 ? "s" : ""}</strong>
+          a \u00e9t\u00e9 enregistr\u00e9 il y a <strong>${ageDays} jour${ageDays > 1 ? "s" : ""}</strong>
           (le ${creationDate}).
-          Soyez vigilant — les sites très récents peuvent être frauduleux.
+          Soyez vigilant \u2014 les sites tr\u00e8s r\u00e9cents peuvent \u00eatre frauduleux.
         </div>
-        <button class="dg-close" title="Fermer">✕</button>
+        <button class="dg-close" title="Fermer">\u2715</button>
       </div>
     `;
 
-    shadow.querySelector(".dg-close").addEventListener("click", () => {
+    shadow.querySelector(".dg-close")!.addEventListener("click", () => {
       host.style.transition = "transform 0.3s ease, opacity 0.3s ease";
       host.style.transform = "translateY(-100%)";
       host.style.opacity = "0";
@@ -139,10 +145,10 @@
       document.documentElement.style.marginTop = "";
     });
 
-    function insert() {
+    function insert(): void {
       if (document.body) {
         document.body.prepend(host);
-        const bannerEl = shadow.querySelector(".dg-banner");
+        const bannerEl = shadow.querySelector(".dg-banner") as HTMLElement | null;
         if (bannerEl) {
           const h = bannerEl.offsetHeight;
           document.documentElement.style.marginTop = h + "px";
@@ -157,7 +163,7 @@
 
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "DOMAIN_GUARD_ALERT" && msg.data) {
-      injectBanner(msg.data);
+      injectBanner(msg.data as AlertData);
     }
   });
 })();

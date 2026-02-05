@@ -6,12 +6,12 @@
   "permissions": ["activeTab", "storage"],
   "host_permissions": ["https://rdap.org/*", "https://*.rdap.org/*", "<all_urls>"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/background.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "js": ["dist/content.js"],
       "run_at": "document_start"
     }
   ],

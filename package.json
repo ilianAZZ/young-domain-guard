@@ -1,0 +1,25 @@
+{
+  "name": "young-domain-guard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilianAZZ/young-domain-guard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ilianAZZ/young-domain-guard/issues"
+  },
+  "homepage": "https://github.com/ilianAZZ/young-domain-guard#readme",
+  "description": "",
+  "devDependencies": {
+    "@types/chrome": "^0.1.36",
+    "typescript": "^5.9.3"
+  }
+}

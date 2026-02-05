@@ -2,9 +2,27 @@ const DEFAULT_THRESHOLD_DAYS = 30;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 4; // 4 hours
 const RDAP_TIMEOUT_MS = 8000;
 
-const cache = new Map();
+interface DomainCheckResult {
+  domain: string;
+  creationDate: string | null;
+  ageDays: number | null;
+  isRecent: boolean;
+  status: "danger" | "safe" | "unknown";
+  checkedAt: number;
+}
 
-function extractRootDomain(hostname) {
+interface RDAPEvent {
+  eventAction: string;
+  eventDate: string;
+}
+
+interface RDAPResponse {
+  events?: RDAPEvent[];
+}
+
+const cache = new Map<string, DomainCheckResult>();
+
+function extractRootDomain(hostname: string): string {
   const parts = hostname.replace(/^www\./, "").split(".");
   if (parts.length <= 2) return parts.join(".");
   const twoPartTLDs = [
@@ -25,13 +43,13 @@ function extractRootDomain(hostname) {
   return parts.slice(-2).join(".");
 }
 
-function daysSince(dateStr) {
+function daysSince(dateStr: string): number {
   const created = new Date(dateStr);
   const now = new Date();
-  return Math.floor((now - created) / (1000 * 60 * 60 * 24));
+  return Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function isSkippableDomain(domain) {
+function isSkippableDomain(domain: string): boolean {
   const skip = [
     "localhost", "127.0.0.1", "0.0.0.0",
     "google.com", "google.fr", "youtube.com", "facebook.com",
@@ -52,7 +70,7 @@ function isSkippableDomain(domain) {
   return false;
 }
 
-async function fetchRDAPCreationDate(domain) {
+async function fetchRDAPCreationDate(domain: string): Promise<string | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), RDAP_TIMEOUT_MS);
 
@@ -70,7 +88,7 @@ async function fetchRDAPCreationDate(domain) {
       return null;
     }
 
-    const data = await res.json();
+    const data: RDAPResponse = await res.json();
 
     if (data.events && Array.isArray(data.events)) {
       const registration = data.events.find(
@@ -83,18 +101,18 @@ async function fetchRDAPCreationDate(domain) {
 
     console.warn(`[YoungDomainGuard] No registration event found for ${domain}`);
     return null;
-  } catch (err) {
+  } catch (err: unknown) {
     clearTimeout(timeout);
-    if (err.name === "AbortError") {
+    if (err instanceof Error && err.name === "AbortError") {
       console.warn(`[YoungDomainGuard] RDAP timeout for ${domain}`);
-    } else {
+    } else if (err instanceof Error) {
       console.warn(`[YoungDomainGuard] RDAP error for ${domain}:`, err.message);
     }
     return null;
   }
 }
 
-async function checkDomain(domain) {
+async function checkDomain(domain: string): Promise<DomainCheckResult> {
   const cached = cache.get(domain);
   if (cached && Date.now() - cached.checkedAt < CACHE_TTL_MS) {
     return cached;
@@ -102,7 +120,7 @@ async function checkDomain(domain) {
 
   const creationDate = await fetchRDAPCreationDate(domain);
 
-  let result;
+  let result: DomainCheckResult;
   if (creationDate) {
     const age = daysSince(creationDate);
     const thresholdDays = await getThreshold();
@@ -130,22 +148,20 @@ async function checkDomain(domain) {
   return result;
 }
 
-async function getThreshold() {
+async function getThreshold(): Promise<number> {
   try {
     const data = await chrome.storage.local.get("thresholdDays");
-    return data.thresholdDays || DEFAULT_THRESHOLD_DAYS;
+    return (data.thresholdDays as number) || DEFAULT_THRESHOLD_DAYS;
   } catch {
     return DEFAULT_THRESHOLD_DAYS;
   }
 }
 
-function updateBadge(tabId, result) {
-  if (!result) return;
-
-  const api = chrome.action || chrome.browserAction;
+function updateBadge(tabId: number, result: Pick<DomainCheckResult, "status">): void {
+  const api = chrome.action;
 
   if (result.status === "danger") {
-    api.setBadgeText({ text: "⚠", tabId });
+    api.setBadgeText({ text: "\u26a0", tabId });
     api.setBadgeBackgroundColor({ color: "#EF4444", tabId });
     api.setIcon({
       path: {
@@ -157,7 +173,7 @@ function updateBadge(tabId, result) {
       tabId,
     });
   } else if (result.status === "safe") {
-    api.setBadgeText({ text: "✓", tabId });
+    api.setBadgeText({ text: "\u2713", tabId });
     api.setBadgeBackgroundColor({ color: "#22C55E", tabId });
     api.setIcon({
       path: {
@@ -186,7 +202,7 @@ function updateBadge(tabId, result) {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== "complete" || !tab.url) return;
 
-  let url;
+  let url: URL;
   try {
     url = new URL(tab.url);
   } catch {
@@ -202,9 +218,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     return;
   }
 
-  const api = chrome.action || chrome.browserAction;
-  api.setBadgeText({ text: "…", tabId });
-  api.setBadgeBackgroundColor({ color: "#94A3B8", tabId });
+  chrome.action.setBadgeText({ text: "\u2026", tabId });
+  chrome.action.setBadgeBackgroundColor({ color: "#94A3B8", tabId });
 
   const result = await checkDomain(domain);
 
@@ -222,9 +237,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === "GET_DOMAIN_INFO") {
-    const domain = msg.domain;
+    const domain = msg.domain as string;
     if (!domain) {
       sendResponse({ status: "unknown" });
       return true;
