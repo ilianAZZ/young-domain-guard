@@ -1,0 +1,61 @@
+name: Publish Extension
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Create zip
+        run: cd build && zip -r ../extension.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: extension.zip
+
+  publish-chrome:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension
+
+      - name: Upload to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v5.0.0
+        with:
+          file-path: extension.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          publish: true
+
+  publish-firefox:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension
+
+      - name: Upload to Mozilla Add-ons
+        uses: browser-actions/release-firefox-addon@latest
+        with:
+          addon-id: "{b3e7f1a2-5d4c-4a89-9c6e-8f2d1b0a3e5c}"
+          addon-path: extension.zip
+          auth-api-issuer: ${{ secrets.AMO_API_KEY }}
+          auth-api-secret: ${{ secrets.AMO_API_SECRET }}
