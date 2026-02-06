@@ -28,6 +28,11 @@ Results are cached for 4 hours to avoid repeated lookups. Major well-known domai
 
 ## Installation
 
+### From store
+
+- **Firefox**: [Young Domain Guard on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/young-domain-guard/)
+- **Chrome/Brave**: [Young Domain Guard on Chrome Web Store](https://chromewebstore.google.com/detail/young-domain-guard/hhkcimdgkdddoiimfgdhfelplkaogppg)
+
 ### From source
 
 1. Clone the repository
